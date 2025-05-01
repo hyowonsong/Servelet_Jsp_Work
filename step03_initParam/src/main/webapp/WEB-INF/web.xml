@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="https://jakarta.ee/xml/ns/jakartaee" xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd" id="WebApp_ID" version="6.0">
+  <display-name>step03_initParam</display-name>
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+    <welcome-file>index.jsp</welcome-file>
+    <welcome-file>index.htm</welcome-file>
+    <welcome-file>default.html</welcome-file>
+    <welcome-file>default.jsp</welcome-file>
+    <welcome-file>default.htm</welcome-file>
+  </welcome-file-list>
+  
+  <!-- 2. 모든 서블릿, 모든 jsp에서 공통(공유)으로 사용할 정보 설정 -> 얘들은 application에 저장됨 -->
+  <!-- 1번은 init-param, 2번은 context-param -->
+  <context-param>
+  	<param-name>message</param-name>
+  	<param-value>배고프다</param-value>
+  </context-param>
+  <context-param>
+  	<param-name>contextConfig</param-name>
+  	<param-value>/WEB-INF/test.xml</param-value>
+  </context-param>
+  
+  <!-- 1. servlet 생성 -->
+  <servlet>
+  	<servlet-name>initParamTestServlet</servlet-name>
+  	<servlet-class>ex0417.servlet.InitParamTestServlet</servlet-class>
+  	<!-- servlet 생성되는 시점에 servlet 쪽으로 넘겨줄 수 있다. 여러개 만들 수 있음 -->
+  	<init-param>
+  		<param-name>id</param-name>
+  		<param-value>song</param-value>
+  	</init-param>
+  	<init-param>
+  		<param-name>fileName</param-name>
+  		<param-value>dbInfo.properties</param-value>
+  	</init-param>
+  	<load-on-startup>1</load-on-startup>
+  </servlet>
+  
+  <servlet-mapping>
+  	<servlet-name>initParamTestServlet</servlet-name>
+  	<url-pattern>/init</url-pattern>
+  </servlet-mapping>
+</web-app>

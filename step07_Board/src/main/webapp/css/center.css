@@ -1,0 +1,14 @@
+.table-board {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-board th, .table-board td {
+  border: 1px solid gray;
+  text-align: center;
+  padding: 5px;
+}
+
+.title-board {
+  text-align: center;
+}

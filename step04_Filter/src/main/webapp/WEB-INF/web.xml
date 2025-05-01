@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="https://jakarta.ee/xml/ns/jakartaee" xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd" id="WebApp_ID" version="6.0">
+  <display-name>step04_Filter</display-name>
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+    <welcome-file>index.jsp</welcome-file>
+    <welcome-file>index.htm</welcome-file>
+    <welcome-file>default.html</welcome-file>
+    <welcome-file>default.jsp</welcome-file>
+    <welcome-file>default.htm</welcome-file>
+  </welcome-file-list>
+  
+  <!-- 1. filter 등록-> load-on-startup 없음(서버 올라갈 때 자동 생성) -->
+  <filter>
+  	<filter-name>sampleFilter</filter-name>
+  	<filter-class>ex0417.Filter.SampleFilter</filter-class>
+  </filter>
+  
+  <!-- test01.jsp, test02.jsp 로 가면 Filter들려 -->
+  <filter-mapping>
+  	<filter-name>sampleFilter</filter-name>
+  	<!-- url-pattern>/test01.jsp</url-pattern>
+  	<url-pattern>/test02.jsp</url-pattern>
+  	<url-pattern>/test</url-pattern-->
+  	<url-pattern>/*</url-pattern>
+  </filter-mapping>
+</web-app>
+
+
+
+
+
