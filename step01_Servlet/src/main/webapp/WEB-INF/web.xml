@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="https://jakarta.ee/xml/ns/jakartaee" xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd" id="WebApp_ID" version="6.0">
+  <display-name>step01_Servlet</display-name>
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+    <welcome-file>index.jsp</welcome-file>
+    <welcome-file>index.htm</welcome-file>
+    <welcome-file>default.html</welcome-file>
+    <welcome-file>default.jsp</welcome-file>
+    <welcome-file>default.htm</welcome-file>
+  </welcome-file-list>
+  
+  <!--  1. Servlet 생성 
+  		lifeCycleServlet = new LifeCycleServlet(); 
+  		
+  		생성시점 : <load-on-startup>1</load-on-startup> 설정하면 tomcat이 start 될 때 자동으로 생성 		
+  		<load-on-startup>1</load-on-startup> 이 없으면 최초에 사용자 요청 들어올 때 서블릿 생성된다.
+  -->
+  <servlet>
+  	<servlet-name>lifeCycleServlet</servlet-name>
+  	<servlet-class>ex0414.servlet.LifeCycleServlet</servlet-class>
+  	<load-on-startup>1</load-on-startup>
+  </servlet>
+  
+  <!-- 2. Servlet 연결(url 주소에서 요청했을 때 연결할 Servlet - Mapping 한다.)-->
+  <servlet-mapping>
+  	<servlet-name>lifeCycleServlet</servlet-name>
+  	<url-pattern>/life</url-pattern>
+  </servlet-mapping>
+  
+  <!-- 1. LoginServlet 생성하기 -->
+  <!-- load-on-startup 더 빠르게 실행시키고 싶으면 순서 낮게 -->
+  <servlet>
+  	<servlet-name>LoginServlet</servlet-name>
+  	<servlet-class>ex0414.servlet.LoginServlet</servlet-class>
+  	<load-on-startup>1</load-on-startup>
+  </servlet>
+  
+  <!-- 2. LoginServlet 등록하기 -->
+  <servlet-mapping>
+  	<servlet-name>LoginServlet</servlet-name>
+  	<url-pattern>/login</url-pattern>
+  </servlet-mapping>
+  
+  <!-- 1. HobbyServlet 생성하기 -->
+  <servlet>
+  	<servlet-name>HobbyServlet</servlet-name>
+  	<servlet-class>ex0414.servlet.HobbyServlet</servlet-class>
+  	<load-on-startup>1</load-on-startup>
+  </servlet>
+  
+  <!-- 2. HobbyServlet 등록하기 -->
+  <servlet-mapping>
+  	<servlet-name>HobbyServlet</servlet-name>
+  	<url-pattern>/Hobby</url-pattern>
+  </servlet-mapping>
+  
+  <!-- 1. BloodServlet 생성하기 -->
+  <servlet>
+  	<servlet-name>BloodServlet</servlet-name>
+  	<servlet-class>ex0414.servlet.BloodServlet</servlet-class>
+  	<load-on-startup>1</load-on-startup>
+  </servlet>
+  
+  <!-- 2. BloodServlet 등록하기 -->
+  <servlet-mapping>
+  	<servlet-name>BloodServlet</servlet-name>
+  	<url-pattern>/bloodCheck</url-pattern>
+  </servlet-mapping>
+  
+</web-app>
+
+
+
+
+
+
+
+
+
+
+
