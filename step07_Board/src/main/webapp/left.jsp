@@ -7,16 +7,20 @@
 <title>Left Section</title>
 </head>
 <body>
-  <%
-    String username = (String) session.getAttribute("username");
-    if (username == null) username = "woni";
-    Date loginTime = (Date) session.getAttribute("loginTime");
-    if (loginTime == null) loginTime = new Date();
-  %>
-  <p><%= username %>님 로그인 중</p>
-  <p>접속시간: <%= loginTime.toString() %></p>
-  
-  <!-- target="_parent" 이렇게 하면 로그아웃하고 index.jsp로 간다.  -->
-  <p><a href="LogoutServlet" target="_parent">로그아웃</a></p> 
+<c:choose>
+  <c:when test="${not empty sessionScope.sessionId}">
+     ${sessionId}님 로그인중<br>
+     [접속시간 : ${creationTime}] <p>
+     <a href="${rootPath}/logout">로그아웃</a>
+  </c:when>
+  <c:otherwise>
+     <form method="post" action="${rootPath}/login"> <!-- servlet의 url-pattern 이 /login -->
+		  ID : <input type="text" name="userId"  size="10"/><br/>
+		  PWD : <input type="password" name="userPwd" size="10"/></br/>
+		  <input type="submit" value="로그인" />
+		  <input type="reset" value="취소" />
+	</form>
+  </c:otherwise>
+</c:choose>
 </body>
 </html>

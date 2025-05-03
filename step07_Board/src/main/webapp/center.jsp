@@ -18,7 +18,7 @@
     </tr>
     <!-- 게시글 반복 출력 -->
     <c:if test="${not empty applicationScope.boardList}">
-      <c:forEach var="board" items="${applicationScope.boardList}">
+      <c:forEach items="${applicationScope.boardList}" var="board" varStatus="state">
         <tr>
           <td>${board.no}</td>
           <td>${board.subject}</td>
@@ -27,18 +27,15 @@
       </c:forEach>
     </c:if>
   </table>
-  <p>글 번호: <input type="text" id="no" name="no"></p>
-  <p>제 목: <input type="text" id="subject" name="subject"></p>
-  <p>내 용: <input type="text" id="content" name="content"></p>
-  <button onclick="registerPost()">등록하기</button>
-  <script>
-    function registerPost() {
-      const no = document.getElementById('no').value;
-      const subject = document.getElementById('subject').value;
-      const content = document.getElementById('content').value;
-      // 이렇게 해야 한다고 함.. 잘 모르겠음..
-      window.parent.location.href = "BoardServlet?no=" + no + "&subject=" + encodeURIComponent(subject) + "&content=" + encodeURIComponent(content);
-    }
-  </script>
+  
+  <c:if test="${not empty sessionScope.sessionId}">
+  	<form action="${rootPath}/board" method="post" >
+	  <p>글 번호: <input type="text" id="no" name="no"></p>
+	  <p>제 목: <input type="text" id="subject" name="subject"></p>
+	  <p>내 용: <input type="text" id="content" name="content"></p>
+	  <input type="submit" value="등록">
+	  <input type="reset" value="취소">
+    </form>
+  </c:if>
 </body>
 </html>
