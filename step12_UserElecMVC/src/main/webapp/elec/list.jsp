@@ -199,39 +199,38 @@ img{width:200px; height:350px}
 
 
  
- <!--  블럭당  -->
-<%-- <nav class="pagination-container">
-		<div class="pagination">
+<nav class="pagination-container">
+	<div class="pagination">
 
-		<c:set var="doneLoop" value="false"/>
-		
-		<c:set var="temp" value="${(pageNo-1) % p.blockcount}"/> <!-- (1-1)%2   , (2-1)%2    1 , (3-1)%2  0 -->
-		<c:set var="startPage" value="${pageNo - temp}"/> <!--   1- 1 -->
+	<c:set var="doneLoop" value="false"/>
+	
+	<c:set var="temp" value="${(pageNo-1) % p.blockcount}"/> <!-- (1-1)%2   , (2-1)%2    1 , (3-1)%2  0 -->
+	<c:set var="startPage" value="${pageNo - temp}"/> <!--   1- 1 -->
 
 
 	\${pageNo} = ${pageNo} , 	\${temp}=${temp}  ,   \${startPage}=${startPage}  , <br>
-		 
-		  <c:if test="${(startPage-p.blockcount) > 0}"> <!-- (-2) > 0  -->
-		      <a class="pagination-newer" href="${path}/front?pageNo=${startPage-1}">PREV</a>
-		  </c:if>
-		
-				<span class="pagination-inner"> 
-				  <c:forEach var='i' begin='${startPage}' end='${(startPage-1)+p.blockcount}'> 
-					  <c:if test="${(i-1)>=p.pageCnt}">
-					       <c:set var="doneLoop" value="true"/>
-					    </c:if> 
-					  <c:if test="${not doneLoop}" >
-					         <a class="${i==pageNo?'pagination-active':page}" href="${path}/front?pageNo=${i}">${i}</a> 
-					  </c:if>
-				</c:forEach>
-				</span> 
-				
-				 <c:if test="${(startPage+p.blockcount)<=p.pageCnt}">
-				     <a class="pagination-older" href="${path}/front?pageNo=${startPage+p.blockcount}">NEXT</a>
-				 </c:if>
-		
-		</div>
-	</nav>  --%>
+	 
+	  <c:if test="${(startPage-p.blockcount) > 0}"> <!-- (-2) > 0  -->
+	      <a class="pagination-newer" href="${path}/front?pageNo=${startPage-1}">PREV</a>
+	  </c:if>
+	
+			<span class="pagination-inner"> 
+			  <c:forEach var='i' begin='${startPage}' end='${(startPage-1)+p.blockcount}'> 
+				  <c:if test="${(i-1)>=p.pageCnt}">
+				       <c:set var="doneLoop" value="true"/>
+				    </c:if> 
+				  <c:if test="${not doneLoop}" >
+				         <a class="${i==pageNo?'pagination-active':page}" href="${path}/front?pageNo=${i}">${i}</a> 
+				  </c:if>
+			</c:forEach>
+			</span> 
+			
+			 <c:if test="${(startPage+p.blockcount)<=p.pageCnt}">
+			     <a class="pagination-older" href="${path}/front?pageNo=${startPage+p.blockcount}">NEXT</a>
+			 </c:if>
+	
+	</div>
+</nav>  
  
 
 <jsp:include page="../common/footer.jsp"/>

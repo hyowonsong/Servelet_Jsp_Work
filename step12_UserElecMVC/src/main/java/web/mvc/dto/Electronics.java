@@ -2,7 +2,6 @@ package web.mvc.dto;
 
 import java.util.List;
 
-;
 
 public class Electronics {
 	private String modelNum;

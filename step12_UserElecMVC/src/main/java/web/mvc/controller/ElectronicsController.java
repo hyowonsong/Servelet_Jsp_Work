@@ -20,13 +20,19 @@ public class ElectronicsController implements Controller {
     /**
      * 상품 리스트 조회
      */
-    public ModelAndView select(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        try {
-            List<Electronics> list = electronicService.selectAll();
-            request.setAttribute("list", list);
-        } catch (SQLException e) {
-            e.printStackTrace();      
-        }
+    public ModelAndView select(HttpServletRequest request, HttpServletResponse response) throws Exception {
+       
+    	String pageNo = request.getParameter("pageNo");
+    	
+    	if(pageNo==null || pageNo.equals("")) {
+			  pageNo="1";
+		  }
+    	
+    	
+        List<Electronics> list = electronicService.selectAll( Integer.parseInt(pageNo) );
+        request.setAttribute("list", list);
+        request.setAttribute("pageNo", pageNo); //뷰에서 ${pageNo}
+        
         return new ModelAndView("elec/list.jsp"); 
     }
     
@@ -51,124 +57,118 @@ public class ElectronicsController implements Controller {
     /**
      * 게시물 등록 (파일 업로드 포함)
      */
-    public ModelAndView insert(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String saveDir = request.getServletContext().getRealPath("/upload");
-        int maxSize = 1024 * 1024 * 10; // 10MB 제한
-        File dir = new File(saveDir);
-        if (!dir.exists()) {
-            dir.mkdirs();
-        }
+    public ModelAndView insert(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    	//전송된 데이터 받기 
+		String modelNum = request.getParameter("model_num");
+		String modelName = request.getParameter("model_name");
+		String price = request.getParameter("price");
+		String description = request.getParameter("description");
+		String password = request.getParameter("password");
+		
+		Electronics elec = 
+			new Electronics(modelNum, modelName, Integer.parseInt(price), description, password);
+		
+		Part part = request.getPart("file");//Servlet 3.0버전부터 제공되는 Part API를 이용한 방법인데, getPart() 메서드
+		
+		String fname = part.getSubmittedFileName(); //전송된 파일이름정보
+		System.out.println("fname = " + fname);
+		
+		if(part!=null) {
+			String fileName = this.getFilename(part);
+			
+			fileName = fileName.replace("/", "").replace("..", "").replace("\\", "");
+			
+			System.out.println("fileName = " + fileName);
+			
+			String saveDir = request.getServletContext().getRealPath("/save"); 
+			//String saveDir = "C:\\Edu\\save"; 
+			
+			if (fileName!=null && !fileName.equals("")) {
+	            part.write( saveDir + "/"+ fileName);//서버폴더에 파일 저장=업로드
+	            
+	            elec.setFname(fileName);
+	            elec.setFsize( (int)part.getSize() );
+	        }
+		}
+		
+		electronicService.insert(elec); // P R G-멱등성
 
-        try {
-            // Part API를 사용해 파라미터와 파일 처리
-            String modelNum = request.getParameter("model_num");
-            String modelName = request.getParameter("model_name");
-            String priceStr = request.getParameter("price");
-            String description = request.getParameter("description");
-            String password = request.getParameter("password");
-
-            // 입력값 검증
-            if (modelNum == null || modelNum.equals("") ||
-                modelName == null || modelName.equals("") ||
-                priceStr == null || priceStr.equals("") ||
-                description == null || description.equals("") ||
-                password == null || password.equals("")) {
-                request.setAttribute("errorMessage", "모든 필수 입력값을 채워주세요.");
-                return new ModelAndView("elec/write.jsp"); 
+	   return new ModelAndView("front", true);//key=elec&methodName=select 기본으로 설정된다.	
+	}
+    
+    /**
+	 * 전송된 파일정보에서 파일이름만 추출해 내는 과정 
+	 * */
+	private String getFilename(Part part) {
+        String headerContent = part.getHeader("content-disposition");
+        
+        //contentDisp의 결과 form-data; name="fileName"; filename="추가한 파일 이름"
+        System.out.println(headerContent);
+        
+        String[] split = headerContent.split(";");
+        for (int i = 0; i < split.length; i++) {
+            String temp = split[i];
+            if (temp.trim().startsWith("filename")) {
+            	System.out.println("temp = " + temp);
+            	System.out.println("temp.indexOf(=) = " + temp.indexOf("=") );
+            	
+                return temp.substring( temp.indexOf("=") + 2 ,  temp.length() - 1);
             }
-
-            int price = Integer.parseInt(priceStr);
-
-            String fname = null;
-            int fsize = 0;
-            Part filePart = request.getPart("file");
-            if (filePart != null && filePart.getSize() > 0) {
-                fname = filePart.getSubmittedFileName();
-                fsize = (int) filePart.getSize();
-                String uniqueFileName = System.currentTimeMillis() + "_" + fname;
-                filePart.write(saveDir + File.separator + uniqueFileName);
-                fname = uniqueFileName;
-            }
-
-            Electronics electronics = new Electronics(modelNum, modelName, price, description, password, null, 0, fname, fsize);
-            electronicService.insert(electronics);
-
-            return new ModelAndView("front?key=elec&methodName=select", true); 
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
-            request.setAttribute("errorMessage", "가격은 숫자 형식이어야 합니다.");
-            return new ModelAndView("elec/write.jsp"); 
-        } catch (SQLException e) {
-            e.printStackTrace();
-            request.setAttribute("errorMessage", "상품 등록에 실패했습니다.");
-            return new ModelAndView("elec/write.jsp"); 
         }
+        return null;
     }
 
     /**
      * 게시물 수정 폼으로 이동
      */
-    public ModelAndView updateForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public ModelAndView updateForm(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String modelNum = request.getParameter("modelNum");
-
-        try {
-            Electronics elec = electronicService.selectByModelnum(modelNum, false);
-            request.setAttribute("elec", elec);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            request.setAttribute("errorMessage", "상품 정보를 조회할 수 없습니다.");
-        }
-
-        return new ModelAndView("elec/update.jsp"); 
-    }
+        String pageNo  = request.getParameter("pageNo");
+		
+		Electronics elec = electronicService.selectByModelnum(modelNum, false);
+		request.setAttribute("elec", elec);//update.jsp에서 ${elec}
+		request.setAttribute("pageNo", pageNo);
+		
+		return new ModelAndView("elec/update.jsp");//forward방식
+	}
 
     /**
      * 게시물 수정
      */
-    public ModelAndView update(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String modelNum = request.getParameter("modelNum");
-        String modelName = request.getParameter("modelName");
-        String priceStr = request.getParameter("price");
-        String description = request.getParameter("description");
-        String password = request.getParameter("password");
-
-        // 입력값 검증
-        if (modelNum == null || modelNum.equals("") ||
-            modelName == null || modelName.equals("") ||
-            priceStr == null || priceStr.equals("") ||
-            description == null || description.equals("") ||
-            password == null || password.equals("")) {
-            request.setAttribute("errorMessage", "모든 필수 입력값을 채워주세요.");
-            return new ModelAndView("elec/update.jsp"); 
-        }
-
-        try {
-            int price = Integer.parseInt(priceStr);
-            Electronics electronics = new Electronics(modelNum, modelName, price, description, password);
-            electronicService.update(electronics);
-            return new ModelAndView("front?key=elec&methodName=selectByModelNum&modelNum=" + electronics.getModelNum(), true);
-        } catch (NumberFormatException | SQLException e) {
-            e.printStackTrace();
-            request.setAttribute("errorMessage", "상품 수정에 실패했습니다.");
-            return new ModelAndView("elec/update.jsp", false);
-        }
-    }
+    public ModelAndView update(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    	//수정할 정보 5개 받기
+		String modelNum = request.getParameter("modelNum");
+		String modelName = request.getParameter("modelName");
+		String price = request.getParameter("price");
+		String description = request.getParameter("description");
+		String password = request.getParameter("password");
+		
+		String pageNo = request.getParameter("pageNo");
+		
+		Electronics electronics = new Electronics(modelNum, modelName, 
+				              Integer.parseInt(price), description, password);
+		
+		electronicService.update( electronics );
+		
+		//수정이 완료가 된후....
+		ModelAndView mv = new ModelAndView();
+		mv.setViewName("front?key=elec&methodName=selectByModelNum&modelNum="+modelNum+"&flag=1&pageNo="+pageNo);
+	    mv.setRedirect(true);
+		return mv;
+	}
 
     /**
      * 게시물 삭제
      */
-    public ModelAndView delete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public ModelAndView delete(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String modelNum = request.getParameter("modelNum");
         String password = request.getParameter("password");
       
-        String saveDir = request.getServletContext().getRealPath("/upload");
-        try {
-            electronicService.delete(modelNum, password, saveDir);
-            return new ModelAndView("front?key=elec&methodName=select", true);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            request.setAttribute("errorMessage", "상품 삭제에 실패했습니다.");
-            return new ModelAndView("elec/read.jsp", false);
-        }
+        //첨부된 파일을 삭제하는 경우라면 삭제가 되었을때 폴더에서 파일도 삭제한다. - 이 기능을 service한다.
+  		String saveDir = request.getServletContext().getRealPath("/save");
+  		
+  		electronicService.delete(modelNum, password , saveDir);
+  		
+  		return new ModelAndView("front", true);
     }
 }

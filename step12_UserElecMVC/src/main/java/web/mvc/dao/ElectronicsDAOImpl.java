@@ -62,46 +62,46 @@ public class ElectronicsDAOImpl implements ElectronicsDAO {
 
 	@Override
 	public List<Electronics> getBoardList(int pageNo) throws SQLException {
-		Connection con=null;
-		PreparedStatement ps=null;
-		ResultSet rs=null;
-		List<Electronics> list = new ArrayList<Electronics>();
-		
-		String sql= proFile.getProperty("query.pagingSelect");//select * from  (SELECT a.*, ROWNUM rnum FROM (SELECT * FROM Electronics ORDER BY writeday desc) a) where  rnum>=? and rnum <=? 
-		try {
-			
-			
-			con = DbUtil.getConnection();
-			con.setAutoCommit(false);//자동커밋해지
-			
-			//전체레코드수를 구한다.
-			int totalCount = this.getTotalCount(con); //전체게시물수 저장
-			
-			//전체 페이지수 = 전체게시물 / 한페이지당보여질게시물수
-			int totalPage = totalCount%PageCnt.pagesize==0 ? totalCount/PageCnt.pagesize : (totalCount/PageCnt.pagesize)+1;
-			
-			PageCnt pageCnt = new PageCnt();
-			pageCnt.setPageCnt(totalPage);
-			pageCnt.setPageNo(pageNo);
-			
-			ps = con.prepareStatement(sql);
-			//? 2개에 set설정
-			ps.setInt(1, (pageNo-1) * pageCnt.pagesize +1); //시작
-			ps.setInt(2, pageNo * pageCnt.pagesize);//끝
-			
-			rs = ps.executeQuery();
-			while(rs.next()) {
-				Electronics electonics = 
-				new Electronics(rs.getString(1), rs.getString(2), rs.getInt(3),
-						rs.getString(4), rs.getString(5), rs.getString(6), rs.getInt(7),
-						rs.getString(8), rs.getInt(9));
-				
-			   list.add(electonics);
-			}
-		}finally {
-			DbUtil.dbClose(con, ps, rs);
-		}
-		return list;
+	    Connection con = null;
+	    PreparedStatement ps = null;
+	    ResultSet rs = null;
+	    List<Electronics> list = new ArrayList<>();
+
+	    String sql = proFile.getProperty("query.pagingSelect"); // SELECT * FROM Electronics ORDER BY writeday DESC LIMIT ? OFFSET ?
+	    try {
+	        con = DbUtil.getConnection();
+	        con.setAutoCommit(false);
+
+	        // 전체 레코드 수 구하기
+	        int totalCount = this.getTotalCount(con);
+	        int totalPage = totalCount % PageCnt.pagesize == 0 ? totalCount / PageCnt.pagesize : (totalCount / PageCnt.pagesize) + 1;
+
+	        PageCnt pageCnt = new PageCnt();
+	        pageCnt.setPageCnt(totalPage);
+	        pageCnt.setPageNo(pageNo);
+
+	        ps = con.prepareStatement(sql);
+	        // LIMIT과 OFFSET 설정
+	        ps.setInt(1, PageCnt.pagesize); // LIMIT: 한 페이지에 보여질 레코드 수
+	        ps.setInt(2, (pageNo - 1) * PageCnt.pagesize); // OFFSET: 시작 위치
+
+	        rs = ps.executeQuery();
+	        while (rs.next()) {
+	            Electronics electronics = new Electronics(
+	                rs.getString(1), rs.getString(2), rs.getInt(3),
+	                rs.getString(4), rs.getString(5), rs.getString(6), rs.getInt(7),
+	                rs.getString(8), rs.getInt(9)
+	            );
+	            list.add(electronics);
+	        }
+	        con.commit();
+	    } catch (SQLException e) {
+	        con.rollback();
+	        throw e;
+	    } finally {
+	        DbUtil.dbClose(con, ps, rs);
+	    }
+	    return list;
 	}
 	
 	
